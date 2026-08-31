@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitácora DS | DS · Digital Solution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bone:#FAF7F2;
+    --ink:#1A2238;
+    --ink-soft:#565C7E;
+    --copper:#D97757;
+    --copper-dark:#B85F42;
+    --copper-soft:#F3DCD1;
+    --card:#FFFFFF;
+    --line:#E7E1D6;
+    --shadow: 0 1px 2px rgba(26,34,56,0.04), 0 8px 24px -12px rgba(26,34,56,0.12);
+    --radius: 14px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bone);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+  }
+  h1,h2,h3,.brand-word,.post-title{
+    font-family:'Fraunces',serif;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    margin:0;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  :focus-visible{outline:2px solid var(--copper);outline-offset:2px;}
+
+  /* ---------- facet mark (signature element) ---------- */
+  .facet{display:block;flex-shrink:0;}
+  .facet path{transition:opacity .3s ease;}
+
+  /* ---------- header ---------- */
+  header.site{
+    position:sticky; top:0; z-index:40;
+    background:rgba(250,247,242,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{
+    max-width:760px; margin:0 auto;
+    padding:14px 20px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-word{font-size:1.15rem; font-weight:600;}
+  .brand-word small{display:block; font-family:'Inter',sans-serif; font-weight:500; font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-top:1px;}
+
+  .btn{
+    border:none; border-radius:999px;
+    padding:10px 18px;
+    font-weight:600; font-size:.88rem;
+    display:inline-flex; align-items:center; gap:7px;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-primary{background:var(--copper); color:#fff; box-shadow:0 6px 16px -6px rgba(217,119,87,.55);}
+  .btn-primary:hover{background:var(--copper-dark); transform:translateY(-1px);}
+  .btn-ghost{background:transparent; color:var(--ink); border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--ink-soft);}
+  .btn-text{background:none; color:var(--ink-soft); padding:6px 8px; font-size:.85rem;}
+  .btn-text:hover{color:var(--copper-dark);}
+
+  /* ---------- hero ---------- */
+  .hero{max-width:760px; margin:0 auto; padding:52px 20px 30px; position:relative;}
+  .eyebrow{
+    font-size:.72rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--copper-dark); margin-bottom:14px; display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{content:''; width:22px; height:1px; background:var(--copper);}
+  .hero h1{font-size:clamp(1.9rem, 4.2vw, 2.7rem); font-weight:600; line-height:1.08; max-width:14ch;}
+  .hero h1 em{font-style:italic; font-weight:500; color:var(--copper-dark);}
+  .hero p{color:var(--ink-soft); font-size:1.02rem; max-width:46ch; margin-top:16px;}
+  .hero-facet-bg{
+    position:absolute; top:10px; right:-40px; width:220px; height:220px;
+    opacity:.65; pointer-events:none;
+  }
+  @media (max-width:640px){ .hero-facet-bg{display:none;} }
+
+  /* ---------- composer trigger ---------- */
+  .composer-trigger{
+    max-width:760px; margin:0 auto; padding:0 20px 28px;
+  }
+  .composer-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:14px 16px; display:flex; align-items:center; gap:12px; box-shadow:var(--shadow);
+    transition:border-color .15s ease;
+  }
+  .composer-card:hover{border-color:#D8CFC0;}
+  .composer-fake-input{
+    flex:1; text-align:left; background:var(--bone); border:1px solid var(--line);
+    border-radius:999px; padding:10px 16px; color:var(--ink-soft); font-size:.92rem;
+  }
+
+  /* ---------- feed ---------- */
+  main{max-width:760px; margin:0 auto; padding:0 20px 100px;}
+  .feed{display:flex; flex-direction:column; gap:18px;}
+
+  .post{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 22px 10px; box-shadow:var(--shadow);
+    animation:rise .5s ease both;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion:reduce){ .post{animation:none;} }
+
+  .post-head{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
+  .avatar{
+    width:38px; height:38px; border-radius:11px; flex-shrink:0;
+    background:linear-gradient(155deg, var(--ink) 0%, #2E3866 100%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .avatar.alt{background:linear-gradient(155deg, var(--copper) 0%, var(--copper-dark) 100%);}
+  .post-author{font-weight:600; font-size:.92rem;}
+  .post-meta{color:var(--ink-soft); font-size:.78rem;}
+  .post-delete{margin-left:auto;}
+
+  .post-title{font-size:1.28rem; font-weight:600; line-height:1.25; margin-bottom:8px;}
+  .post-body{color:#333A57; font-size:.97rem; white-space:pre-wrap;}
+  .post-body.post-meme{
+    font-family:'Fraunces',serif; font-style:italic; font-weight:500;
+    font-size:1.3rem; line-height:1.4; color:var(--ink); text-align:center;
+    padding:14px 6px 8px;
+  }
+  .post-image{width:100%; border-radius:10px; margin-top:14px; display:block; border:1px solid var(--line);}
+
+  .post-divider{height:1px; background:var(--line); margin:16px 0 4px;}
+  .post-actions{display:flex; align-items:center; gap:6px; padding:6px 0 10px;}
+  .action-btn{
+    background:none; border:none; color:var(--ink-soft); font-size:.85rem; font-weight:500;
+    display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:8px;
+    transition:background .15s ease, color .15s ease;
+  }
+  .action-btn:hover{background:var(--bone); color:var(--ink);}
+  .action-btn svg{width:16px; height:16px;}
+
+  .comments{display:none; border-top:1px solid var(--line); padding:14px 0 6px;}
+  .comments.open{display:block;}
+  .comment-list{display:flex; flex-direction:column; gap:12px; margin-bottom:12px;}
+  .comment{display:flex; gap:10px;}
+  .comment-avatar{
+    width:28px; height:28px; border-radius:8px; flex-shrink:0; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:700;
+  }
+  .comment-bubble{background:var(--bone); border-radius:10px; padding:8px 12px; font-size:.87rem;}
+  .comment-author{font-weight:600; margin-right:6px;}
+  .comment-time{color:var(--ink-soft); font-size:.72rem; margin-top:2px;}
+  .comment-empty{color:var(--ink-soft); font-size:.85rem; font-style:italic; margin-bottom:12px;}
+
+  .comment-form{display:flex; gap:8px;}
+  .comment-form input{
+    flex:1; border:1px solid var(--line); border-radius:999px; padding:9px 14px;
+    font-family:inherit; font-size:.87rem; background:var(--bone);
+  }
+  .comment-form input:focus{outline:2px solid var(--copper); outline-offset:1px;}
+  .comment-form button{
+    background:var(--ink); color:#fff; border:none; border-radius:999px; padding:0 16px;
+    font-size:.85rem; font-weight:600;
+  }
+  .comment-form button:hover{background:#2E3866;}
+
+  /* ---------- empty state ---------- */
+  .empty{
+    text-align:center; padding:60px 20px; color:var(--ink-soft);
+    border:1px dashed var(--line); border-radius:var(--radius);
+  }
+  .empty h3{font-size:1.1rem; margin-bottom:6px; color:var(--ink);}
+
+  /* ---------- modal ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(26,34,56,0.45);
+    display:none; align-items:flex-start; justify-content:center;
+    padding:40px 16px; z-index:100; overflow-y:auto;
+    backdrop-filter:blur(2px);
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--card); width:100%; max-width:540px; border-radius:18px;
+    padding:26px; box-shadow:0 30px 60px -20px rgba(26,34,56,.35);
+    animation:pop .25s ease both;
+  }
+  @keyframes pop{ from{opacity:0; transform:translateY(8px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);} }
+  @media (prefers-reduced-motion:reduce){ .modal{animation:none;} }
+  .modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .modal-head h2{font-size:1.3rem; font-weight:600;}
+  .modal-close{background:none; border:none; font-size:1.3rem; color:var(--ink-soft); line-height:1; padding:4px;}
+  .modal-close:hover{color:var(--ink);}
+
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:.82rem; font-weight:600; margin-bottom:6px; color:var(--ink);}
+  .field input[type=text], .field textarea{
+    width:100%; border:1px solid var(--line); border-radius:10px; padding:11px 13px;
+    font-family:inherit; font-size:.92rem; background:var(--bone); resize:vertical;
+  }
+  .field input:focus, .field textarea:focus{outline:2px solid var(--copper); outline-offset:1px;}
+  .field textarea{min-height:130px; line-height:1.5;}
+  .hint{font-size:.76rem; color:var(--ink-soft); margin-top:5px;}
+
+  .image-drop{
+    border:1.5px dashed var(--line); border-radius:10px; padding:16px; text-align:center;
+    background:var(--bone); position:relative;
+  }
+  .image-drop input{position:absolute; inset:0; opacity:0; cursor:pointer;}
+  .image-drop-label{color:var(--ink-soft); font-size:.85rem;}
+  .image-preview{margin-top:12px; display:none;}
+  .image-preview.show{display:block;}
+  .image-preview img{width:100%; border-radius:8px; border:1px solid var(--line); max-height:220px; object-fit:cover;}
+  .image-preview button{margin-top:8px;}
+
+  .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:22px;}
+
+  footer.site{max-width:760px; margin:0 auto; padding:30px 20px 60px; color:var(--ink-soft); font-size:.8rem; text-align:center;}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="header-inner">
+    <div class="brand">
+      <svg class="facet" width="30" height="30" viewBox="0 0 40 40" fill="none">
+        <polygon points="20,2 36,13 30,36 10,36 4,13" fill="var(--ink)"/>
+        <polygon points="20,2 36,13 20,20" fill="var(--copper)"/>
+        <polygon points="20,2 4,13 20,20" fill="#2E3866"/>
+        <polygon points="4,13 10,36 20,20" fill="var(--copper-dark)"/>
+        <polygon points="36,13 30,36 20,20" fill="#404A75"/>
+      </svg>
+      <span class="brand-word">Bitácora DS<small>DS · Digital Solution</small></span>
+    </div>
+    <button class="btn btn-primary" onclick="openComposer()">
+      <span>+</span> Nueva publicación
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <svg class="hero-facet-bg" viewBox="0 0 200 200" fill="none">
+    <polygon points="100,10 180,60 160,180 40,180 20,60" fill="var(--copper-soft)"/>
+    <polygon points="100,10 180,60 100,95" fill="var(--copper)" opacity=".35"/>
+    <polygon points="100,10 20,60 100,95" fill="var(--ink)" opacity=".15"/>
+  </svg>
+  <div class="eyebrow">Sistemas digitales, explicados</div>
+  <h1>Notas sobre cómo <em>vender todos los días</em>, no solo cuando hay ganas de publicar.</h1>
+  <p>Ideas, procesos y aprendizajes sobre ecommerce, automatización y sistemas digitales para negocios que ya venden — y quieren vender mejor.</p>
+</section>
+
+<div class="composer-trigger">
+  <div class="composer-card">
+    <svg class="facet" width="34" height="34" viewBox="0 0 40 40" fill="none">
+      <polygon points="20,2 36,13 30,36 10,36 4,13" fill="var(--ink)"/>
+      <polygon points="20,2 36,13 20,20" fill="var(--copper)"/>
+    </svg>
+    <button class="composer-fake-input" style="text-align:left; cursor:pointer;" onclick="openComposer()">
+      ¿Qué sistema, error o aprendizaje quieres compartir hoy?
+    </button>
+    <button class="btn btn-ghost" onclick="openComposer()">Escribir</button>
+  </div>
+</div>
+
+<main>
+  <div class="feed" id="feed"></div>
+  <div class="empty" id="emptyState" style="display:none;">
+    <h3>Todavía no hay publicaciones</h3>
+    <p>Usa "Nueva publicación" para escribir la primera entrada de la bitácora.</p>
+  </div>
+</main>
+
+<footer class="site">
+  DS | Digital Solution — Sistemas digitales para PYMES que quieren crecer con orden.
+</footer>
+
+<!-- ---------- modal: nueva publicación ---------- -->
+<div class="overlay" id="overlay" onclick="if(event.target===this) closeComposer()">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Nueva publicación</h2>
+      <button class="modal-close" onclick="closeComposer()" aria-label="Cerrar">×</button>
+    </div>
+    <div class="field">
+      <label for="f-title">Título</label>
+      <input type="text" id="f-title" placeholder="Ej: 3 señales de que tu WhatsApp ya no aguanta más ventas">
+    </div>
+    <div class="field">
+      <label for="f-body">Contenido</label>
+      <textarea id="f-body" placeholder="Escribe el cuerpo de la publicación..."></textarea>
+    </div>
+    <div class="field">
+      <label>Imagen (opcional)</label>
+      <div class="image-drop">
+        <input type="file" id="f-image" accept="image/*" onchange="handleImage(event)">
+        <div class="image-drop-label">Arrastra una imagen o haz clic para elegirla</div>
+      </div>
+      <div class="image-preview" id="imgPreviewWrap">
+        <img id="imgPreview" alt="Vista previa">
+        <button class="btn btn-text" onclick="removeImage()">Quitar imagen</button>
+      </div>
+      <div class="hint">Formatos JPG o PNG. La imagen se muestra solo en esta sesión del navegador.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeComposer()">Cancelar</button>
+      <button class="btn btn-primary" onclick="publishPost()">Publicar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- generador de comentarios automáticos (contenido de ejemplo, no son personas reales) ----------
+  const commentBank = [
+    { text: "¿Esto también funciona si mi negocio es de una sola persona?" },
+    { text: "¿Cuánto tiempo toma armar algo así en promedio?" },
+    { text: "¿Sirve igual para Instagram o solo para WhatsApp?" },
+    { text: "¿Qué herramienta recomiendan para arrancar con esto?" },
+    { text: "Leí esto justo después de perder un pedido en el chat 😂 qué directo" },
+    { text: "Mi WhatsApp Business parece más un buzón de voz que un sistema jaja" },
+    { text: "Cada vez que leo 'automatizar' pienso en robots, pero ya me convencieron" },
+    { text: "Etiquetando a mi socio para que por fin lea esto 👀" },
+    { text: "Tal cual, nos pasó exactamente esto el año pasado" },
+    { text: "Guardando esto para releerlo con calma, muy claro" },
+    { text: "Aplica 100% también para negocios de servicios" },
+    { text: "Justo lo que necesitaba leer hoy, gracias por compartirlo" },
+    { text: "¿Tienen algún caso de éxito con negocios pequeños?" },
+    { text: "Un thread corto pero que dice más que muchos cursos" }
+  ];
+  const commentNames = ["Camila R.","Jorge T.","Valeria M.","Andrés Q.","Renata P.","Kevin S.","Lucía F.","Marisol V.","Bruno C.","Tomás E."];
+  const commentTimes = ["hace 40 min","hace 1 h","hace 3 h","hace 5 h","hace 1 día","hace 2 días"];
+
+  function randomFrom(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function autoComments(min = 1, max = 4){
+    const n = Math.floor(Math.random() * (max - min + 1)) + min;
+    const used = new Set();
+    const result = [];
+    for (let i = 0; i < n; i++){
+      let c, tries = 0;
+      do { c = randomFrom(commentBank); tries++; } while (used.has(c.text) && tries < 10);
+      used.add(c.text);
+      result.push({ author: randomFrom(commentNames), text: c.text, time: randomFrom(commentTimes) });
+    }
+    return result;
+  }
+
+  // ---------- estado en memoria (sin backend, sin almacenamiento persistente) ----------
+  // Las publicaciones "DS" son tuyas. Las de otras cuentas son contenido de ejemplo
+  // (negocios ficticios, blogs y memes) solo para mostrar cómo se ve un feed activo.
+  let posts = [
+    {
+      id: 5,
+      author: "DS | Digital Solution",
+      date: "26 ago",
+      sourceTag: "DS Blog",
+      avatarBg: "linear-gradient(155deg, var(--ink) 0%, #2E3866 100%)",
+      title: "Por qué automatizar WhatsApp no es lo mismo que perder el trato personal",
+      body: "El miedo más común al automatizar la atención es sonar como robot. Pero un buen sistema no reemplaza la conversación: filtra lo repetitivo (horarios, precios, disponibilidad) para que la persona real entre solo cuando aporta valor. La diferencia no está en automatizar o no — está en decidir qué merece tu tiempo y qué no.",
+      image: null,
+      comments: autoComments(2, 4),
+      isMeme: false
+    },
+    {
+      id: 4,
+      author: "Memes de PYME",
+      date: "25 ago",
+      sourceTag: "Cuenta de ejemplo · meme",
+      avatarBg: "linear-gradient(155deg, #E8B4A0 0%, var(--copper-dark) 100%)",
+      title: "",
+      body: "Yo diciendo 'ya casi automatizo mi negocio' desde hace 8 meses 🙃📎",
+      image: null,
+      comments: autoComments(1, 3),
+      isMeme: true
+    },
+    {
+      id: 3,
+      author: "La Espiga Panadería",
+      date: "22 ago",
+      sourceTag: "Negocio local · Arequipa",
+      avatarBg: "linear-gradient(155deg, #C9A15A 0%, #8C6A2E 100%)",
+      title: "De anotar pedidos en un cuaderno a tener todo en un solo lugar",
+      body: "Antes se nos perdían pedidos de encargos grandes (cumpleaños, quinceaños). Desde que ordenamos el proceso, ya no se nos escapa ninguno. Pequeño cambio, gran diferencia.",
+      image: null,
+      comments: autoComments(1, 3),
+      isMeme: false
+    },
+    {
+      id: 2,
+      author: "MarketingPe Blog",
+      date: "20 ago",
+      sourceTag: "Blog invitado",
+      avatarBg: "linear-gradient(155deg, #6B7AA1 0%, var(--ink) 100%)",
+      title: "5 señales de que tu negocio ya necesita un sistema, no más parches",
+      body: "Si cada vez que crece la demanda contratas 'una persona más para el WhatsApp' en vez de resolver el proceso, no tienes un problema de personal: tienes un problema de sistema.",
+      image: null,
+      comments: autoComments(1, 3),
+      isMeme: false
+    },
+    {
+      id: 1,
+      author: "DS | Digital Solution",
+      date: "19 ago",
+      sourceTag: "DS Blog",
+      avatarBg: "linear-gradient(155deg, var(--copper) 0%, var(--copper-dark) 100%)",
+      title: "El error más caro de vender solo por WhatsApp",
+      body: "No es la falta de ventas. Es la falta de registro: cada pedido que se pierde en el chat es data que tu negocio nunca vuelve a usar. Un sistema simple de captura (aunque sea una hoja conectada) ya cambia cómo decides la próxima compra de inventario.",
+      image: null,
+      comments: autoComments(1, 4),
+      isMeme: false
+    }
+  ];
+  let nextId = 6;
+
+  const feedEl = document.getElementById('feed');
+  const emptyEl = document.getElementById('emptyState');
+  let pendingImage = null;
+
+  function initials(name){
+    return name.split(' ').filter(w => w.length && w[0] === w[0].toUpperCase()).slice(0,2).map(w=>w[0]).join('') || 'DS';
+  }
+
+  function render(){
+    feedEl.innerHTML = '';
+    emptyEl.style.display = posts.length ? 'none' : 'block';
+    posts.forEach(post => feedEl.appendChild(renderPost(post)));
+  }
+
+  function renderPost(post){
+    const el = document.createElement('article');
+    el.className = 'post';
+
+    const commentCount = post.comments.length;
+    const commentLabel = commentCount === 0 ? 'Comentar' : commentCount === 1 ? '1 comentario' : commentCount + ' comentarios';
+
+    el.innerHTML = `
+      <div class="post-head">
+        <div class="avatar" style="background:${post.avatarBg || 'linear-gradient(155deg, var(--ink) 0%, #2E3866 100%)'}">
+          <svg width="18" height="18" viewBox="0 0 40 40" fill="none">
+            <polygon points="20,2 36,13 30,36 10,36 4,13" fill="#fff" opacity="0.92"/>
+          </svg>
+        </div>
+        <div>
+          <div class="post-author">${escapeHtml(post.author)}</div>
+          <div class="post-meta">${escapeHtml(post.date)} · ${escapeHtml(post.sourceTag || 'DS Blog')}</div>
+        </div>
+        <button class="btn btn-text post-delete" onclick="deletePost(${post.id})">Eliminar</button>
+      </div>
+      ${post.title ? `<h3 class="post-title">${escapeHtml(post.title)}</h3>` : ''}
+      <div class="post-body ${post.isMeme ? 'post-meme' : ''}">${escapeHtml(post.body)}</div>
+      ${post.image ? `<img class="post-image" src="${post.image}" alt="Imagen de la publicación">` : ''}
+      <div class="post-divider"></div>
+      <div class="post-actions">
+        <button class="action-btn" onclick="toggleComments(${post.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          ${commentLabel}
+        </button>
+      </div>
+      <div class="comments" id="comments-${post.id}">
+        <div class="comment-list" id="comment-list-${post.id}"></div>
+        <div class="comment-form">
+          <input type="text" id="comment-input-${post.id}" placeholder="Escribe un comentario..." onkeydown="if(event.key==='Enter') addComment(${post.id})">
+          <button onclick="addComment(${post.id})">Enviar</button>
+        </div>
+      </div>
+    `;
+    renderComments(post, el.querySelector(`#comment-list-${post.id}`));
+    return el;
+  }
+
+  function renderComments(post, container){
+    if (!post.comments.length){
+      container.innerHTML = `<div class="comment-empty">Sé el primero en comentar.</div>`;
+      return;
+    }
+    container.innerHTML = post.comments.map((c, i) => `
+      <div class="comment">
+        <div class="comment-avatar" style="background:${i % 2 === 0 ? 'var(--ink)' : 'var(--copper)'}">${initials(c.author)}</div>
+        <div>
+          <div class="comment-bubble"><span class="comment-author">${escapeHtml(c.author)}</span>${escapeHtml(c.text)}</div>
+          <div class="comment-time">${escapeHtml(c.time)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function toggleComments(id){
+    document.getElementById(`comments-${id}`).classList.toggle('open');
+  }
+
+  function addComment(id){
+    const input = document.getElementById(`comment-input-${id}`);
+    const text = input.value.trim();
+    if (!text) return;
+    const post = posts.find(p => p.id === id);
+    post.comments.push({ author: 'Tú', text, time: 'ahora' });
+    input.value = '';
+    render();
+    document.getElementById(`comments-${id}`).classList.add('open');
+    document.getElementById(`comment-input-${id}`).focus();
+  }
+
+  function deletePost(id){
+    posts = posts.filter(p => p.id !== id);
+    render();
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ---------- composer ----------
+  const overlay = document.getElementById('overlay');
+  function openComposer(){
+    overlay.classList.add('open');
+    document.getElementById('f-title').focus();
+  }
+  function closeComposer(){
+    overlay.classList.remove('open');
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-body').value = '';
+    removeImage();
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeComposer();
+  });
+
+  function handleImage(event){
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      pendingImage = e.target.result;
+      document.getElementById('imgPreview').src = pendingImage;
+      document.getElementById('imgPreviewWrap').classList.add('show');
+    };
+    reader.readAsDataURL(file);
+  }
+  function removeImage(){
+    pendingImage = null;
+    document.getElementById('f-image').value = '';
+    document.getElementById('imgPreviewWrap').classList.remove('show');
+  }
+
+  function publishPost(){
+    const title = document.getElementById('f-title').value.trim();
+    const body = document.getElementById('f-body').value.trim();
+    if (!title || !body){
+      alert('Escribe un título y un contenido antes de publicar.');
+      return;
+    }
+    posts.unshift({
+      id: nextId++,
+      author: 'DS | Digital Solution',
+      date: 'ahora',
+      sourceTag: 'DS Blog',
+      avatarBg: posts.length % 2 === 0
+        ? 'linear-gradient(155deg, var(--copper) 0%, var(--copper-dark) 100%)'
+        : 'linear-gradient(155deg, var(--ink) 0%, #2E3866 100%)',
+      title, body,
+      image: pendingImage,
+      comments: [],
+      isMeme: false
+    });
+    closeComposer();
+    render();
+    // los comentarios automáticos llegan con un pequeño retraso, como si fueran reacciones reales
+    const newPostId = posts[0].id;
+    setTimeout(() => {
+      const p = posts.find(x => x.id === newPostId);
+      if (!p) return;
+      p.comments = autoComments(1, 3);
+      render();
+    }, 1400);
+    window.scrollTo({ top: document.querySelector('.composer-trigger').offsetTop, behavior: 'smooth' });
+  }
+
+  render();
+</script>
+</body>
+</html>
